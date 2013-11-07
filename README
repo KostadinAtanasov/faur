@@ -1,0 +1,16 @@
+			faur
+
+What is faur?
+	faur is AUR helper written in Scheme.
+
+Supported operations:
+	-Ss $string
+	Search for packages in AUR which name contain given $string.
+
+	-S $package
+	Download $package's tar.gz in /var/tmp/faur_epochtime directory.
+
+	-Su
+	Check AUR for newer versions of installed foreing packages
+	and download their tar.gz in /var/tmp/faur_epochtime.
+
