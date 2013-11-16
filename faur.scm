@@ -269,7 +269,7 @@
 ; () -> Void called for side effects
 (define (make-temp-dir)
   (when (not (directory-exists? (get-temp-dir)))
-      (make-directory (get-temp-dir))))
+    (make-directory (get-temp-dir))))
 
 (define delete-temp-dir-pred #t)
 
@@ -313,7 +313,7 @@
     (if (> (hash-ref jsres 'resultcount) 0)
         (let ((version (extract-package-aur-version jsres)))
           (when (string>? version installed-version)
-              (start-makepkg package jsres)))
+            (start-makepkg package jsres)))
         (display (format "No such ~a in AUR\n" package)))))
 
 ; (List-of-Strings) -> Void called for side effects
@@ -344,11 +344,11 @@
          (cond ((search?)
                 (let ((jsres (perform-rpc "search" package)))
                   (when (> (hash-ref jsres 'resultcount) 0)
-                      (print-search (hash-ref jsres 'results)))))
+                    (print-search (hash-ref jsres 'results)))))
                ((info?)
                 (let ((jsres (perform-rpc "info" package)))
                   (when (> (hash-ref jsres 'resultcount) 0)
-                      (print-info (hash-ref jsres 'results)))))
+                    (print-info (hash-ref jsres 'results)))))
                ((update?)
                 (perform-update package))
                (#t
@@ -358,9 +358,9 @@
         (inrepl? (void))
         (#t (display "You should provide at least one operation\n")))
   (when (and
-       (directory-exists? (get-temp-dir))
-       (delete-temp-dir?))
-      (system (string-append "rm -r " (get-temp-dir)))))
+         (directory-exists? (get-temp-dir))
+         (delete-temp-dir?))
+    (system (string-append "rm -r " (get-temp-dir)))))
 
 (when (not inrepl?)
   (parse-cmd (current-command-line-arguments))
