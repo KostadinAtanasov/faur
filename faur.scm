@@ -313,7 +313,7 @@
         (let ((version (extract-package-aur-version jsres)))
           (when (string>? version installed-version)
             (start-makepkg package jsres)))
-        (display (format "No such ~a in AUR\n" package)))))
+        (display (format "no such ~a in AUR\n" package)))))
 
 ; (List-of-Strings) -> Void called for side effects
 (define (update-installed-packages pacman-Qm)
@@ -334,11 +334,11 @@
                           pacman-Qm)))
         (if (not (empty? info))
             (update-package package (car (cdr (string-split (car info)))))
-            (display (format "No such package ~a\n" package))))))
+            (display (format "no such package ~a\n" package))))))
 
 ; (String) -> Void called for side effects
 (define (main package)
-  (cond ((badoption?) (display "Bad option on command line\n"))
+  (cond ((badoption?) (display "bad option on command line\n"))
         ((sync?)
          (cond ((search?)
                 (if (not (empty? package))
@@ -358,9 +358,9 @@
                 (if (not (empty? package))
                     (update-package package "0")
                     (display
-                     "Install - at least one package name required\n")))))
+                     "install - at least one package name required\n")))))
         (inrepl? (void))
-        (#t (display "You should provide at least one operation\n")))
+        (#t (display "you should provide at least one operation\n")))
   (when (and
          (directory-exists? (get-temp-dir))
          (delete-temp-dir?))
