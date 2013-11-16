@@ -169,6 +169,13 @@
             s)
   (display ""))
 
+; (Hash) -> Void called for side effects
+(define (print-info h)
+  (for-each
+   (lambda (x)
+     (display (format "~a: ~a\n" (car x) (cdr x))))
+   (hash->list h)))
+
 ; (Jsexpr) -> String
 (define (extract-package-aur-version jsres)
   (let ((res (hash-ref jsres 'results)))
@@ -344,7 +351,9 @@
                       (print-search (hash-ref jsres 'results))
                       (display ""))))
                ((info?)
-                (display "info not implemented"))
+                (let ((jsres (perform-rpc "info" package)))
+                  (when (> (hash-ref jsres 'resultcount) 0)
+                      (print-info (hash-ref jsres 'results)))))
                ((update?)
                 (perform-update package))
                (#t
