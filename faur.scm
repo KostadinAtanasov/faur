@@ -166,8 +166,7 @@
                 (for-each (lambda (d)
                             (display (format "\t~a\n" d)))
                           (trim-lines desc 70))))
-            s)
-  (display ""))
+            s))
 
 ; (Hash) -> Void called for side effects
 (define (print-info h)
