@@ -224,17 +224,15 @@
     (if (eq? fc #\-)
         (let ((len (string-length gr)))
           (let loop ((n 1))
-            (if (= n len)
-                (void)
-                (begin
-                  (let ((c (string-ref gr n)))
-                    (cond ((eq? c #\S) (sync? #t))
-                          ((eq? c #\s) (search? #t))
-                          ((eq? c #\u) (update? #t))
-                          ((eq? c #\i) (info? #t))
-                          ((eq? c #\y) (void)) ;; refresh doesn't make sense
-                          (#t (badoption? #t))))
-                  (loop (+ n 1))))))
+            (when (not (= n len))
+              (let ((c (string-ref gr n)))
+                (cond ((eq? c #\S) (sync? #t))
+                      ((eq? c #\s) (search? #t))
+                      ((eq? c #\u) (update? #t))
+                      ((eq? c #\i) (info? #t))
+                      ((eq? c #\y) (void)) ;; refresh doesn't make sense
+                      (#t (badoption? #t))))
+              (loop (+ n 1)))))
         (set! parsedcmd gr))))
 
 (define (parse-cmd cmdline)
@@ -270,9 +268,8 @@
 
 ; () -> Void called for side effects
 (define (make-temp-dir)
-  (if (not (directory-exists? (get-temp-dir)))
-      (make-directory (get-temp-dir))
-      (void)))
+  (when (not (directory-exists? (get-temp-dir)))
+      (make-directory (get-temp-dir))))
 
 (define delete-temp-dir-pred #t)
 
@@ -315,9 +312,8 @@
   (let ((jsres (perform-rpc "info" package)))
     (if (> (hash-ref jsres 'resultcount) 0)
         (let ((version (extract-package-aur-version jsres)))
-          (if (string>? version installed-version)
-              (start-makepkg package jsres)
-              (void)))
+          (when (string>? version installed-version)
+              (start-makepkg package jsres)))
         (display (format "No such ~a in AUR\n" package)))))
 
 ; (List-of-Strings) -> Void called for side effects
@@ -347,9 +343,8 @@
         ((sync?)
          (cond ((search?)
                 (let ((jsres (perform-rpc "search" package)))
-                  (if (> (hash-ref jsres 'resultcount) 0)
-                      (print-search (hash-ref jsres 'results))
-                      (display ""))))
+                  (when (> (hash-ref jsres 'resultcount) 0)
+                      (print-search (hash-ref jsres 'results)))))
                ((info?)
                 (let ((jsres (perform-rpc "info" package)))
                   (when (> (hash-ref jsres 'resultcount) 0)
@@ -362,14 +357,11 @@
                     (display "Install - at least one package name required")))))
         (inrepl? (void))
         (#t (display "You should provide at least one operation\n")))
-  (if (and
+  (when (and
        (directory-exists? (get-temp-dir))
        (delete-temp-dir?))
-      (system (string-append "rm -r " (get-temp-dir)))
-      (void)))
+      (system (string-append "rm -r " (get-temp-dir)))))
 
-(if (not inrepl?)
-    (begin
-      (parse-cmd (current-command-line-arguments))
-      (main parsedcmd))
-    (void))
+(when (not inrepl?)
+  (parse-cmd (current-command-line-arguments))
+  (main parsedcmd))
