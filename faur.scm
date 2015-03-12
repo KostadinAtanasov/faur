@@ -251,6 +251,21 @@
     (close-input-port (list-ref pacman-control 0))
     pacman-response))
 
+; (String String) -> Boolean
+(define (call-vercmp aurver instver)
+  (let ((vercmp-control (process (string-append "vercmp " aurver " " instver)))
+        (vercmp-response '()))
+    ((list-ref vercmp-control 4) 'wait)
+	(close-output-port (list-ref vercmp-control 1))
+	(close-input-port (list-ref vercmp-control 3))
+	(set! vercmp-response (read-to-line-list (list-ref vercmp-control 0)))
+	(close-input-port (list-ref vercmp-control 0))
+	(let ((ans (car vercmp-response)))
+	  (cond
+	    ((string=? ans "0") #f)
+		((string=? ans "1") #t)
+		(#t #f)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ABS handling
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -311,7 +326,7 @@
   (let ((jsres (perform-rpc "info" package)))
     (if (> (hash-ref jsres 'resultcount) 0)
         (let ((version (extract-package-aur-version jsres)))
-          (when (string>? version installed-version)
+          (when (call-vercmp version installed-version)
             (start-makepkg package jsres)))
         (display (format "no such ~a in AUR\n" package)))))
 
