@@ -200,10 +200,15 @@
             (size-line (bytes-get-line http-response
                                        (lambda (x)
                                          (regexp-match? "Content-Length" x)))))
-        (set! size-line (extract-contentline-size size-line))
-        (if (and (not (empty? pos)) (not (empty? size-line)))
-            (subbytes http-response pos (+ pos size-line))
-            (make-bytes 0)))
+	(cond
+	 ((empty? pos) (make-bytes 0))
+	 ((empty? size-line) ; \n is appended to the response
+	  (let ((sub-response (subbytes http-response pos)))
+	    (subbytes sub-response 0 (- (bytes-length sub-response) 1))))
+	 (#t
+	  (subbytes http-response
+		    pos
+		    (+ pos (extract-contentline-size size-line))))))
       (make-bytes 0)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -371,7 +376,7 @@
                 (perform-update package))
                (#t
                 (if (not (empty? package))
-                    (update-package package "0")
+                    (update-package package "a")
                     (display
                      "install - at least one package name required\n")))))
         (inrepl? (void))
